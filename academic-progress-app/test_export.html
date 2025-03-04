@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de Exportación - Sistema de Gestión Académica</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-gray-50 p-8">
+    <div class="max-w-2xl mx-auto">
+        <h1 class="text-2xl font-bold mb-6">Test de Exportación</h1>
+        
+        <!-- Test Grades Export -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 class="text-lg font-semibold mb-4">Test de Exportación de Calificaciones</h2>
+            <div class="space-y-4">
+                <button onclick="testExport('grades', 'pdf')" class="btn-primary w-full mb-2">
+                    Exportar Calificaciones (PDF)
+                </button>
+                <button onclick="testExport('grades', 'excel')" class="btn-primary w-full">
+                    Exportar Calificaciones (Excel)
+                </button>
+                <div id="gradesResult" class="mt-4 p-4 bg-gray-100 rounded-lg hidden"></div>
+            </div>
+        </div>
+
+        <!-- Test Attendance Export -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 class="text-lg font-semibold mb-4">Test de Exportación de Asistencia</h2>
+            <div class="space-y-4">
+                <button onclick="testExport('attendance', 'pdf')" class="btn-primary w-full mb-2">
+                    Exportar Asistencia (PDF)
+                </button>
+                <button onclick="testExport('attendance', 'excel')" class="btn-primary w-full">
+                    Exportar Asistencia (Excel)
+                </button>
+                <div id="attendanceResult" class="mt-4 p-4 bg-gray-100 rounded-lg hidden"></div>
+            </div>
+        </div>
+
+        <!-- Test with Filters -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-lg font-semibold mb-4">Test con Filtros</h2>
+            <form id="filterForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de Reporte</label>
+                    <select name="type" class="custom-input w-full">
+                        <option value="grades">Calificaciones</option>
+                        <option value="attendance">Asistencia</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Formato</label>
+                    <select name="format" class="custom-input w-full">
+                        <option value="pdf">PDF</option>
+                        <option value="excel">Excel</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">ID del Alumno (opcional)</label>
+                    <input type="number" name="student_id" class="custom-input w-full">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">ID de la Asignatura (opcional)</label>
+                    <input type="number" name="subject_id" class="custom-input w-full">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Fecha Desde</label>
+                        <input type="date" name="date_from" class="custom-input w-full">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Fecha Hasta</label>
+                        <input type="date" name="date_to" class="custom-input w-full">
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary w-full">
+                    Exportar con Filtros
+                </button>
+                <div id="filterResult" class="mt-4 p-4 bg-gray-100 rounded-lg hidden"></div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { exportAPI } from './js/api.js';
+
+        // Simple export test
+        window.testExport = async (type, format) => {
+            try {
+                const resultDiv = document.getElementById(`${type}Result`);
+                resultDiv.classList.remove('hidden');
+                resultDiv.innerHTML = 'Generando exportación...';
+
+                if (type === 'grades') {
+                    await exportAPI.exportGrades(format);
+                } else {
+                    await exportAPI.exportAttendance(format);
+                }
+
+                resultDiv.innerHTML = `Exportación de ${type} en formato ${format} iniciada exitosamente.`;
+                resultDiv.classList.add('text-green-600');
+            } catch (error) {
+                const resultDiv = document.getElementById(`${type}Result`);
+                resultDiv.classList.remove('hidden');
+                resultDiv.innerHTML = `Error: ${error.message}`;
+                resultDiv.classList.add('text-red-600');
+            }
+        };
+
+        // Test with filters
+        document.getElementById('filterForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            
+            const resultDiv = document.getElementById('filterResult');
+            resultDiv.classList.remove('hidden');
+            resultDiv.innerHTML = 'Generando exportación con filtros...';
+
+            try {
+                const filters = {
+                    student_id: data.student_id || undefined,
+                    subject_id: data.subject_id || undefined,
+                    date_from: data.date_from || undefined,
+                    date_to: data.date_to || undefined
+                };
+
+                if (data.type === 'grades') {
+                    await exportAPI.exportGrades(data.format, filters);
+                } else {
+                    await exportAPI.exportAttendance(data.format, filters);
+                }
+
+                resultDiv.innerHTML = 'Exportación con filtros iniciada exitosamente.';
+                resultDiv.classList.add('text-green-600');
+            } catch (error) {
+                resultDiv.innerHTML = `Error: ${error.message}`;
+                resultDiv.classList.add('text-red-600');
+            }
+        });
+    </script>
+</body>
+</html>
