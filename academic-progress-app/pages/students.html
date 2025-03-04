@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Alumnos - Sistema de Gestión Académica</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body class="bg-gray-50 font-[Inter]">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <a href="../index.html" class="text-xl font-bold text-gray-800">Sistema de Gestión Académica</a>
+                    </div>
+                    <div class="hidden md:ml-6 md:flex md:space-x-8">
+                        <a href="../index.html" class="inline-flex items-center px-1 pt-1 text-gray-500 hover:text-gray-900">
+                            Dashboard
+                        </a>
+                        <a href="#" class="inline-flex items-center px-1 pt-1 border-b-2 border-indigo-500 text-gray-900">
+                            Alumnos
+                        </a>
+                        <a href="subjects.html" class="inline-flex items-center px-1 pt-1 text-gray-500 hover:text-gray-900">
+                            Asignaturas
+                        </a>
+                        <a href="grades.html" class="inline-flex items-center px-1 pt-1 text-gray-500 hover:text-gray-900">
+                            Calificaciones
+                        </a>
+                        <a href="attendance.html" class="inline-flex items-center px-1 pt-1 text-gray-500 hover:text-gray-900">
+                            Asistencia
+                        </a>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <button class="p-2 rounded-full hover:bg-gray-100 relative">
+                        <i class="fas fa-bell text-gray-600"></i>
+                        <span class="notification-badge"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- Page Header -->
+        <div class="px-4 py-6 sm:px-0">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-semibold text-gray-900">Gestión de Alumnos</h1>
+                <button id="addStudentBtn" class="btn-primary flex items-center">
+                    <i class="fas fa-plus mr-2"></i>
+                    Nuevo Alumno
+                </button>
+            </div>
+
+            <!-- Search and Filter Section -->
+            <div class="bg-white rounded-lg shadow p-6 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Buscar</label>
+                        <div class="relative">
+                            <input type="text" id="searchInput" class="custom-input w-full pl-10 pr-4 py-2 rounded-lg" placeholder="Buscar por nombre o código...">
+                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Grado</label>
+                        <select id="gradeFilter" class="custom-input w-full py-2 rounded-lg">
+                            <option value="">Todos los grados</option>
+                            <option value="1">Primer Grado</option>
+                            <option value="2">Segundo Grado</option>
+                            <option value="3">Tercer Grado</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <button id="resetFilters" class="text-gray-600 hover:text-gray-900">
+                            <i class="fas fa-undo mr-2"></i>
+                            Resetear filtros
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Students Table -->
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Nombre</th>
+                                <th>Grado</th>
+                                <th>Email</th>
+                                <th>Teléfono</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentsTableBody">
+                            <!-- Table content will be dynamically populated -->
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Pagination -->
+                <div class="bg-gray-50 px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                    <div class="flex-1 flex justify-between sm:hidden">
+                        <button class="btn-primary">Anterior</button>
+                        <button class="btn-primary">Siguiente</button>
+                    </div>
+                    <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                        <div>
+                            <p class="text-sm text-gray-700">
+                                Mostrando <span id="startRange">1</span> a <span id="endRange">10</span> de <span id="totalItems">20</span> resultados
+                            </p>
+                        </div>
+                        <div>
+                            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                <button class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                    <span class="sr-only">Anterior</span>
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+                                <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">1</button>
+                                <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">2</button>
+                                <button class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                    <span class="sr-only">Siguiente</span>
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add/Edit Student Modal -->
+    <div id="studentModal" class="fixed inset-0 hidden">
+        <div class="modal-backdrop absolute inset-0"></div>
+        <div class="absolute inset-0 flex items-center justify-center p-4">
+            <div class="modal-content bg-white rounded-lg shadow-xl max-w-md w-full">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900" id="modalTitle">Agregar Nuevo Alumno</h3>
+                </div>
+                <form id="studentForm" class="px-6 py-4">
+                    <div class="grid grid-cols-1 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Código de Alumno</label>
+                            <input type="text" name="student_code" class="custom-input w-full" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Nombre</label>
+                            <input type="text" name="first_name" class="custom-input w-full" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Apellido</label>
+                            <input type="text" name="last_name" class="custom-input w-full" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                            <input type="email" name="email" class="custom-input w-full" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Teléfono</label>
+                            <input type="tel" name="phone" class="custom-input w-full">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Grado</label>
+                            <select name="grade_level" class="custom-input w-full" required>
+                                <option value="">Seleccionar grado</option>
+                                <option value="1">Primer Grado</option>
+                                <option value="2">Segundo Grado</option>
+                                <option value="3">Tercer Grado</option>
+                            </select>
+                        </div>
+                        <!-- Parent Information -->
+                        <div class="border-t border-gray-200 pt-4 mt-2">
+                            <h4 class="text-sm font-medium text-gray-900 mb-4">Información del Padre/Tutor</h4>
+                            <div class="grid grid-cols-1 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Nombre del Padre/Tutor</label>
+                                    <input type="text" name="parent_name" class="custom-input w-full">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Email del Padre/Tutor</label>
+                                    <input type="email" name="parent_email" class="custom-input w-full">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Teléfono del Padre/Tutor</label>
+                                    <input type="tel" name="parent_phone" class="custom-input w-full">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <div class="px-6 py-4 bg-gray-50 flex justify-end space-x-3 rounded-b-lg">
+                    <button id="cancelBtn" class="px-4 py-2 text-gray-700 hover:text-gray-900">
+                        Cancelar
+                    </button>
+                    <button id="saveBtn" class="btn-primary">
+                        Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div id="toastContainer" class="fixed bottom-0 right-0 p-4 z-50"></div>
+
+    <!-- Scripts -->
+    <script type="module" src="../js/api.js"></script>
+    <script type="module" src="../js/ui.js"></script>
+    <script type="module">
+        import { studentsAPI } from '../js/api.js';
+
+        // Initialize page functionality when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            loadStudents();
+            setupEventListeners();
+        });
+
+        // Load students data
+        async function loadStudents(filters = {}) {
+            try {
+                const response = await studentsAPI.getAll(filters);
+                renderStudentsTable(response.data);
+            } catch (error) {
+                showToast('Error al cargar los alumnos', 'error');
+            }
+        }
+
+        // Render students table
+        function renderStudentsTable(students) {
+            const tbody = document.getElementById('studentsTableBody');
+            tbody.innerHTML = '';
+
+            students.forEach(student => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${student.student_code}</td>
+                    <td>${student.first_name} ${student.last_name}</td>
+                    <td>${getGradeName(student.grade_level)}</td>
+                    <td>${student.email}</td>
+                    <td>${student.phone || '-'}</td>
+                    <td class="flex space-x-2">
+                        <button class="text-blue-600 hover:text-blue-800" onclick="editStudent(${student.id})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="text-red-600 hover:text-red-800" onclick="deleteStudent(${student.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Add student button
+            document.getElementById('addStudentBtn').addEventListener('click', () => {
+                showModal();
+            });
+
+            // Search input
+            document.getElementById('searchInput').addEventListener('input', debounce((e) => {
+                loadStudents({ search: e.target.value });
+            }, 300));
+
+            // Grade filter
+            document.getElementById('gradeFilter').addEventListener('change', (e) => {
+                loadStudents({ grade_level: e.target.value });
+            });
+
+            // Reset filters
+            document.getElementById('resetFilters').addEventListener('click', () => {
+                document.getElementById('searchInput').value = '';
+                document.getElementById('gradeFilter').value = '';
+                loadStudents();
+            });
+
+            // Modal form
+            document.getElementById('studentForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const data = Object.fromEntries(formData.entries());
+
+                try {
+                    if (data.id) {
+                        await studentsAPI.update(data.id, data);
+                        showToast('Alumno actualizado exitosamente', 'success');
+                    } else {
+                        await studentsAPI.create(data);
+                        showToast('Alumno creado exitosamente', 'success');
+                    }
+                    hideModal();
+                    loadStudents();
+                } catch (error) {
+                    showToast('Error al guardar el alumno', 'error');
+                }
+            });
+
+            // Modal close button
+            document.getElementById('cancelBtn').addEventListener('click', hideModal);
+        }
+
+        // Utility functions
+        function getGradeName(grade) {
+            const grades = {
+                '1': 'Primer Grado',
+                '2': 'Segundo Grado',
+                '3': 'Tercer Grado'
+            };
+            return grades[grade] || grade;
+        }
+
+        function showModal(student = null) {
+            const modal = document.getElementById('studentModal');
+            const form = document.getElementById('studentForm');
+            const title = document.getElementById('modalTitle');
+
+            if (student) {
+                title.textContent = 'Editar Alumno';
+                // Fill form with student data
+                Object.keys(student).forEach(key => {
+                    const input = form.elements[key];
+                    if (input) {
+                        input.value = student[key];
+                    }
+                });
+            } else {
+                title.textContent = 'Agregar Nuevo Alumno';
+                form.reset();
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function hideModal() {
+            document.getElementById('studentModal').classList.add('hidden');
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type} fade-in`;
+            toast.textContent = message;
+
+            const container = document.getElementById('toastContainer');
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Export functions for global access
+        window.editStudent = async (id) => {
+            try {
+                const response = await studentsAPI.getById(id);
+                showModal(response.data);
+            } catch (error) {
+                showToast('Error al cargar los datos del alumno', 'error');
+            }
+        };
+
+        window.deleteStudent = async (id) => {
+            if (confirm('¿Está seguro de que desea eliminar este alumno?')) {
+                try {
+                    await studentsAPI.delete(id);
+                    showToast('Alumno eliminado exitosamente', 'success');
+                    loadStudents();
+                } catch (error) {
+                    showToast('Error al eliminar el alumno', 'error');
+                }
+            }
+        };
+    </script>
+</body>
+</html>
