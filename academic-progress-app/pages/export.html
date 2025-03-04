@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exportar Reportes - Sistema de Gestión Académica</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body class="bg-gray-50 font-[Inter]">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <a href="../index.html" class="text-xl font-bold text-gray-800">Sistema de Gestión Académica</a>
+                    </div>
+                    <div class="hidden md:ml-6 md:flex md:space-x-8">
+                        <a href="../index.html" class="inline-flex items-center px-1 pt-1 text-gray-500 hover:text-gray-900">
+                            Dashboard
+                        </a>
+                        <a href="students.html" class="inline-flex items-center px-1 pt-1 text-gray-500 hover:text-gray-900">
+                            Alumnos
+                        </a>
+                        <a href="subjects.html" class="inline-flex items-center px-1 pt-1 text-gray-500 hover:text-gray-900">
+                            Asignaturas
+                        </a>
+                        <a href="grades.html" class="inline-flex items-center px-1 pt-1 text-gray-500 hover:text-gray-900">
+                            Calificaciones
+                        </a>
+                        <a href="attendance.html" class="inline-flex items-center px-1 pt-1 text-gray-500 hover:text-gray-900">
+                            Asistencia
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div class="px-4 py-6 sm:px-0">
+            <h1 class="text-2xl font-semibold text-gray-900 mb-6">Exportar Reportes</h1>
+
+            <!-- Report Types -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <!-- Grades Report Card -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center mb-4">
+                        <div class="rounded-full bg-indigo-100 p-3">
+                            <i class="fas fa-graduation-cap text-indigo-600"></i>
+                        </div>
+                        <h2 class="ml-4 text-lg font-medium text-gray-900">Reporte de Calificaciones</h2>
+                    </div>
+                    <p class="text-gray-600 mb-4">
+                        Generar reporte detallado de calificaciones por alumno, asignatura o período.
+                    </p>
+                    <button onclick="showExportModal('grades')" class="btn-primary w-full">
+                        <i class="fas fa-file-export mr-2"></i>
+                        Exportar Calificaciones
+                    </button>
+                </div>
+
+                <!-- Attendance Report Card -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center mb-4">
+                        <div class="rounded-full bg-green-100 p-3">
+                            <i class="fas fa-calendar-check text-green-600"></i>
+                        </div>
+                        <h2 class="ml-4 text-lg font-medium text-gray-900">Reporte de Asistencia</h2>
+                    </div>
+                    <p class="text-gray-600 mb-4">
+                        Generar reporte de asistencia por alumno, asignatura o período.
+                    </p>
+                    <button onclick="showExportModal('attendance')" class="btn-primary w-full">
+                        <i class="fas fa-file-export mr-2"></i>
+                        Exportar Asistencia
+                    </button>
+                </div>
+            </div>
+
+            <!-- Export History -->
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Historial de Exportaciones</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Tipo</th>
+                                <th>Formato</th>
+                                <th>Filtros</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="exportHistoryBody">
+                            <!-- Will be populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Export Modal -->
+    <div id="exportModal" class="fixed inset-0 hidden">
+        <div class="modal-backdrop absolute inset-0"></div>
+        <div class="absolute inset-0 flex items-center justify-center p-4">
+            <div class="modal-content bg-white rounded-lg shadow-xl max-w-md w-full">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900" id="modalTitle">Exportar Reporte</h3>
+                </div>
+                <form id="exportForm" class="px-6 py-4">
+                    <input type="hidden" name="type" id="reportType">
+                    
+                    <div class="grid grid-cols-1 gap-4">
+                        <!-- Format Selection -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Formato</label>
+                            <div class="grid grid-cols-2 gap-4">
+                                <label class="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
+                                    <input type="radio" name="format" value="pdf" checked class="text-indigo-600">
+                                    <span class="ml-2">PDF</span>
+                                </label>
+                                <label class="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
+                                    <input type="radio" name="format" value="excel" class="text-indigo-600">
+                                    <span class="ml-2">Excel</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Filters -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Alumno</label>
+                            <select name="student_id" class="custom-input w-full">
+                                <option value="">Todos los alumnos</option>
+                                <!-- Will be populated dynamically -->
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Asignatura</label>
+                            <select name="subject_id" class="custom-input w-full">
+                                <option value="">Todas las asignaturas</option>
+                                <!-- Will be populated dynamically -->
+                            </select>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Fecha Desde</label>
+                                <input type="date" name="date_from" class="custom-input w-full">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Fecha Hasta</label>
+                                <input type="date" name="date_to" class="custom-input w-full">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <div class="px-6 py-4 bg-gray-50 flex justify-end space-x-3 rounded-b-lg">
+                    <button id="cancelBtn" class="px-4 py-2 text-gray-700 hover:text-gray-900">
+                        Cancelar
+                    </button>
+                    <button id="exportBtn" class="btn-primary">
+                        <i class="fas fa-file-export mr-2"></i>
+                        Exportar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div id="toastContainer" class="fixed bottom-0 right-0 p-4 z-50"></div>
+
+    <!-- Scripts -->
+    <script type="module" src="../js/api.js"></script>
+    <script type="module">
+        import { studentsAPI, subjectsAPI } from '../js/api.js';
+
+        // Initialize page when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            loadStudents();
+            loadSubjects();
+            loadExportHistory();
+            setupEventListeners();
+        });
+
+        // Load students for select dropdown
+        async function loadStudents() {
+            try {
+                const response = await studentsAPI.getAll();
+                const select = document.querySelector('select[name="student_id"]');
+                
+                response.data.forEach(student => {
+                    const option = document.createElement('option');
+                    option.value = student.id;
+                    option.textContent = `${student.first_name} ${student.last_name}`;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                showToast('Error al cargar los alumnos', 'error');
+            }
+        }
+
+        // Load subjects for select dropdown
+        async function loadSubjects() {
+            try {
+                const response = await subjectsAPI.getAll();
+                const select = document.querySelector('select[name="subject_id"]');
+                
+                response.data.forEach(subject => {
+                    const option = document.createElement('option');
+                    option.value = subject.id;
+                    option.textContent = subject.name;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                showToast('Error al cargar las asignaturas', 'error');
+            }
+        }
+
+        // Load export history
+        function loadExportHistory() {
+            // This would typically load from a database
+            const history = [
+                {
+                    date: '2023-12-01 10:30',
+                    type: 'Calificaciones',
+                    format: 'PDF',
+                    filters: 'Todos los alumnos',
+                    status: 'Completado'
+                },
+                // Add more history items as needed
+            ];
+
+            const tbody = document.getElementById('exportHistoryBody');
+            tbody.innerHTML = '';
+
+            history.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.date}</td>
+                    <td>${item.type}</td>
+                    <td>${item.format}</td>
+                    <td>${item.filters}</td>
+                    <td>
+                        <span class="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            ${item.status}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="text-blue-600 hover:text-blue-800">
+                            <i class="fas fa-download"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Export form submission
+            document.getElementById('exportForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                exportReport();
+            });
+
+            // Export button click
+            document.getElementById('exportBtn').addEventListener('click', () => {
+                document.getElementById('exportForm').dispatchEvent(new Event('submit'));
+            });
+
+            // Cancel button click
+            document.getElementById('cancelBtn').addEventListener('click', hideModal);
+        }
+
+        // Show export modal
+        window.showExportModal = function(type) {
+            const modal = document.getElementById('exportModal');
+            const titleMap = {
+                'grades': 'Exportar Calificaciones',
+                'attendance': 'Exportar Asistencia'
+            };
+
+            document.getElementById('reportType').value = type;
+            document.getElementById('modalTitle').textContent = titleMap[type];
+            modal.classList.remove('hidden');
+        }
+
+        // Hide modal
+        function hideModal() {
+            document.getElementById('exportModal').classList.add('hidden');
+        }
+
+        // Export report
+        function exportReport() {
+            const form = document.getElementById('exportForm');
+            const formData = new FormData(form);
+            const queryString = new URLSearchParams(formData).toString();
+            
+            // Redirect to export API
+            window.location.href = `../api/export.php?${queryString}`;
+            
+            // Hide modal
+            hideModal();
+            
+            // Show success message
+            showToast('El reporte se está generando...', 'success');
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type} fade-in`;
+            toast.textContent = message;
+
+            const container = document.getElementById('toastContainer');
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
