@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Asignaturas - Sistema de Gestión Académica</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body class="bg-gray-50 font-[Inter]">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <a href="../index.html" class="text-xl font-bold text-gray-800">Sistema de Gestión Académica</a>
+                    </div>
+                    <div class="hidden md:ml-6 md:flex md:space-x-8">
+                        <a href="../index.html" class="inline-flex items-center px-1 pt-1 text-gray-500 hover:text-gray-900">
+                            Dashboard
+                        </a>
+                        <a href="students.html" class="inline-flex items-center px-1 pt-1 text-gray-500 hover:text-gray-900">
+                            Alumnos
+                        </a>
+                        <a href="#" class="inline-flex items-center px-1 pt-1 border-b-2 border-indigo-500 text-gray-900">
+                            Asignaturas
+                        </a>
+                        <a href="grades.html" class="inline-flex items-center px-1 pt-1 text-gray-500 hover:text-gray-900">
+                            Calificaciones
+                        </a>
+                        <a href="attendance.html" class="inline-flex items-center px-1 pt-1 text-gray-500 hover:text-gray-900">
+                            Asistencia
+                        </a>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <button class="p-2 rounded-full hover:bg-gray-100 relative">
+                        <i class="fas fa-bell text-gray-600"></i>
+                        <span class="notification-badge"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- Page Header -->
+        <div class="px-4 py-6 sm:px-0">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-semibold text-gray-900">Gestión de Asignaturas</h1>
+                <button id="addSubjectBtn" class="btn-primary flex items-center">
+                    <i class="fas fa-plus mr-2"></i>
+                    Nueva Asignatura
+                </button>
+            </div>
+
+            <!-- Search and Filter Section -->
+            <div class="bg-white rounded-lg shadow p-6 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Buscar</label>
+                        <div class="relative">
+                            <input type="text" id="searchInput" class="custom-input w-full pl-10 pr-4 py-2 rounded-lg" placeholder="Buscar por nombre o código...">
+                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Año Académico</label>
+                        <select id="yearFilter" class="custom-input w-full py-2 rounded-lg">
+                            <option value="">Todos los años</option>
+                            <option value="2023">2023</option>
+                            <option value="2022">2022</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <button id="resetFilters" class="text-gray-600 hover:text-gray-900">
+                            <i class="fas fa-undo mr-2"></i>
+                            Resetear filtros
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subjects Table -->
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Nombre</th>
+                                <th>Profesor</th>
+                                <th>Créditos</th>
+                                <th>Año</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="subjectsTableBody">
+                            <!-- Table content will be dynamically populated -->
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Pagination -->
+                <div class="bg-gray-50 px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                    <div class="flex-1 flex justify-between sm:hidden">
+                        <button class="btn-primary">Anterior</button>
+                        <button class="btn-primary">Siguiente</button>
+                    </div>
+                    <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                        <div>
+                            <p class="text-sm text-gray-700">
+                                Mostrando <span id="startRange">1</span> a <span id="endRange">10</span> de <span id="totalItems">20</span> resultados
+                            </p>
+                        </div>
+                        <div>
+                            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                <button class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                    <span class="sr-only">Anterior</span>
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+                                <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">1</button>
+                                <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">2</button>
+                                <button class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                    <span class="sr-only">Siguiente</span>
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add/Edit Subject Modal -->
+    <div id="subjectModal" class="fixed inset-0 hidden">
+        <div class="modal-backdrop absolute inset-0"></div>
+        <div class="absolute inset-0 flex items-center justify-center p-4">
+            <div class="modal-content bg-white rounded-lg shadow-xl max-w-md w-full">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900" id="modalTitle">Agregar Nueva Asignatura</h3>
+                </div>
+                <form id="subjectForm" class="px-6 py-4">
+                    <div class="grid grid-cols-1 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Código de Asignatura</label>
+                            <input type="text" name="subject_code" class="custom-input w-full" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Nombre</label>
+                            <input type="text" name="name" class="custom-input w-full" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
+                            <textarea name="description" class="custom-input w-full" rows="3"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Profesor</label>
+                            <select name="teacher_id" class="custom-input w-full" required>
+                                <option value="">Seleccionar profesor</option>
+                                <!-- Options will be populated dynamically -->
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Créditos</label>
+                            <input type="number" name="credits" class="custom-input w-full" required min="1" max="10">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Año Académico</label>
+                            <select name="academic_year" class="custom-input w-full" required>
+                                <option value="">Seleccionar año</option>
+                                <option value="2023">2023</option>
+                                <option value="2022">2022</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Horario</label>
+                            <textarea name="schedule" class="custom-input w-full" rows="2" placeholder="Ej: Lunes y Miércoles 9:00-10:30"></textarea>
+                        </div>
+                    </div>
+                </form>
+                <div class="px-6 py-4 bg-gray-50 flex justify-end space-x-3 rounded-b-lg">
+                    <button id="cancelBtn" class="px-4 py-2 text-gray-700 hover:text-gray-900">
+                        Cancelar
+                    </button>
+                    <button id="saveBtn" class="btn-primary">
+                        Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div id="toastContainer" class="fixed bottom-0 right-0 p-4 z-50"></div>
+
+    <!-- Scripts -->
+    <script type="module" src="../js/api.js"></script>
+    <script type="module" src="../js/ui.js"></script>
+    <script type="module">
+        import { subjectsAPI } from '../js/api.js';
+
+        // Initialize page functionality when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSubjects();
+            loadTeachers();
+            setupEventListeners();
+        });
+
+        // Load subjects data
+        async function loadSubjects(filters = {}) {
+            try {
+                const response = await subjectsAPI.getAll(filters);
+                renderSubjectsTable(response.data);
+            } catch (error) {
+                showToast('Error al cargar las asignaturas', 'error');
+            }
+        }
+
+        // Load teachers for select dropdown
+        async function loadTeachers() {
+            try {
+                const response = await fetch('../api/teachers.php');
+                const data = await response.json();
+                const select = document.querySelector('select[name="teacher_id"]');
+                
+                data.data.forEach(teacher => {
+                    const option = document.createElement('option');
+                    option.value = teacher.id;
+                    option.textContent = `${teacher.first_name} ${teacher.last_name}`;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                showToast('Error al cargar los profesores', 'error');
+            }
+        }
+
+        // Render subjects table
+        function renderSubjectsTable(subjects) {
+            const tbody = document.getElementById('subjectsTableBody');
+            tbody.innerHTML = '';
+
+            subjects.forEach(subject => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${subject.subject_code}</td>
+                    <td>${subject.name}</td>
+                    <td>${subject.teacher_name || '-'}</td>
+                    <td>${subject.credits}</td>
+                    <td>${subject.academic_year}</td>
+                    <td class="flex space-x-2">
+                        <button class="text-blue-600 hover:text-blue-800" onclick="editSubject(${subject.id})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="text-red-600 hover:text-red-800" onclick="deleteSubject(${subject.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Add subject button
+            document.getElementById('addSubjectBtn').addEventListener('click', () => {
+                showModal();
+            });
+
+            // Search input
+            document.getElementById('searchInput').addEventListener('input', debounce((e) => {
+                loadSubjects({ search: e.target.value });
+            }, 300));
+
+            // Year filter
+            document.getElementById('yearFilter').addEventListener('change', (e) => {
+                loadSubjects({ academic_year: e.target.value });
+            });
+
+            // Reset filters
+            document.getElementById('resetFilters').addEventListener('click', () => {
+                document.getElementById('searchInput').value = '';
+                document.getElementById('yearFilter').value = '';
+                loadSubjects();
+            });
+
+            // Modal form
+            document.getElementById('subjectForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const data = Object.fromEntries(formData.entries());
+
+                try {
+                    if (data.id) {
+                        await subjectsAPI.update(data.id, data);
+                        showToast('Asignatura actualizada exitosamente', 'success');
+                    } else {
+                        await subjectsAPI.create(data);
+                        showToast('Asignatura creada exitosamente', 'success');
+                    }
+                    hideModal();
+                    loadSubjects();
+                } catch (error) {
+                    showToast('Error al guardar la asignatura', 'error');
+                }
+            });
+
+            // Modal close button
+            document.getElementById('cancelBtn').addEventListener('click', hideModal);
+        }
+
+        // Utility functions
+        function showModal(subject = null) {
+            const modal = document.getElementById('subjectModal');
+            const form = document.getElementById('subjectForm');
+            const title = document.getElementById('modalTitle');
+
+            if (subject) {
+                title.textContent = 'Editar Asignatura';
+                // Fill form with subject data
+                Object.keys(subject).forEach(key => {
+                    const input = form.elements[key];
+                    if (input) {
+                        input.value = subject[key];
+                    }
+                });
+            } else {
+                title.textContent = 'Agregar Nueva Asignatura';
+                form.reset();
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function hideModal() {
+            document.getElementById('subjectModal').classList.add('hidden');
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type} fade-in`;
+            toast.textContent = message;
+
+            const container = document.getElementById('toastContainer');
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Export functions for global access
+        window.editSubject = async (id) => {
+            try {
+                const response = await subjectsAPI.getById(id);
+                showModal(response.data);
+            } catch (error) {
+                showToast('Error al cargar los datos de la asignatura', 'error');
+            }
+        };
+
+        window.deleteSubject = async (id) => {
+            if (confirm('¿Está seguro de que desea eliminar esta asignatura?')) {
+                try {
+                    await subjectsAPI.delete(id);
+                    showToast('Asignatura eliminada exitosamente', 'success');
+                    loadSubjects();
+                } catch (error) {
+                    showToast('Error al eliminar la asignatura', 'error');
+                }
+            }
+        };
+    </script>
+</body>
+</html>
